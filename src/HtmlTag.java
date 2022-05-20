@@ -55,7 +55,6 @@ public class HtmlTag {
     public boolean matches(HtmlTag other) {
         return other != null && element.equalsIgnoreCase(other.element) && isOpenTag != other.isOpenTag;
     }
-    
     /** Returns true if this tag does not requires a matching closing tag,
       * which is the case for certain elements such as br and img. */
     public boolean isSelfClosing() {

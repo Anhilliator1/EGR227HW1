@@ -160,37 +160,80 @@ public class HtmlValidatorTest {
 	/**
 	 * Add your own test to test your removeAll method
 	 * Add your own comment here:
+     * Checks to see if the removeAll function is working.
 	 */
-	@Test
-	public void myRemoveAllTest1(){
-
+	@Test(timeout = 5000)
+	public void myRemoveAllTest(){
+        Queue<HtmlTag> tags = new LinkedList<>();
+        tags.add(new HtmlTag("p", true));
+        tags.add(new HtmlTag("p", false));
+        tags.add(new HtmlTag("head", true));
+        tags.add(new HtmlTag("body",true));
+        tags.add(new HtmlTag("body", false));
+        tags.add(new HtmlTag("head",false));
+        tags.add(new HtmlTag("br"));           // <br/>
+        HtmlValidator validator = new HtmlValidator(tags);
+        validator.removeAll("head");
+        Assert.assertFalse(validatorOutputToString(validator).contains("head"));
 	}
 
 	/**
 	 * Add your own test to test your removeAll method
 	 * Add your own comment here:
+     * Checks to see if the Unclosed Tag checker works.
 	 */
 	@Test
-	public void myRemoveAllTest2(){
+	public void validatorContainsUnclosedTagTest(){
 
+        Queue<HtmlTag> tags = new LinkedList<>();
+        tags.add(new HtmlTag("p", true));
+        tags.add(new HtmlTag("p", false));
+        tags.add(new HtmlTag("head", true));
+        tags.add(new HtmlTag("body",true));
+        tags.add(new HtmlTag("body", false));
+        tags.add(new HtmlTag("br"));              // <br/>
+        HtmlValidator validator = new HtmlValidator(tags);
+        Assert.assertTrue(validatorOutputToString(validator).contains("ERROR unclosed tag: <head>"));
 	}
 
 	/**
 	 * Add your own test to test your removeAll method
 	 * Add your own comment here:
+     * Checks to see if the addTag method is working.
 	 */
 	@Test
-	public void myRemoveAllTest3(){
-
+	public void addTagTest(){
+        Queue<HtmlTag> tags = new LinkedList<>();
+        tags.add(new HtmlTag("p", true));
+        tags.add(new HtmlTag("p", false));
+        tags.add(new HtmlTag("head", true));
+        tags.add(new HtmlTag("body",true));
+        tags.add(new HtmlTag("body", false));
+        tags.add(new HtmlTag("head",false));
+        tags.add(new HtmlTag("br"));           // <br/>
+        HtmlValidator validator = new HtmlValidator(tags);
+        validator.addTag(HtmlTag.parse("x"));
+        Assert.assertTrue(validatorOutputToString(validator).contains("<x>"));
 	}
 
     /**
      * Add your own test to test your removeAll method
      * Add your own comment here:
+     * Checks to see if the unexpected tag checker is working.
      */
     @Test
-    public void myRemoveAllTest4(){
-
+    public void unexpectedTagTest(){
+        Queue<HtmlTag> tags = new LinkedList<>();
+        tags.add(new HtmlTag("p", true));
+        tags.add(new HtmlTag("p", false));
+        tags.add(new HtmlTag("head", true));
+        tags.add(new HtmlTag("body",true));
+        tags.add(new HtmlTag("body", false));
+        tags.add(new HtmlTag("body", false));
+        tags.add(new HtmlTag("head",false));
+        tags.add(new HtmlTag("br"));           // <br/>
+        HtmlValidator validator = new HtmlValidator(tags);
+        Assert.assertTrue(validatorOutputToString(validator).contains("ERROR unexpected tag: </body>"));
     }
 
     //FEEL FREE TO ADD MORE TESTS HERE

@@ -1,122 +1,139 @@
-/**
- * Add your own comments
+/*
+ * EGR227 HW1 HTML Validator
+ *
+ * The HtmlValidator class provides a simple way to verify the validity of HTML files
+ * with simple, stack-based tag matching. Output is indented based on tag depth, and errors
+ * are printed in-line.
  */
 
 import java.util.*;
+
 public class HtmlValidator {
-    private static final String INDENTATIONMARKER = "    ";
+
+    private static final String INDENTATION_MARKER = "    ";
+
     private Queue<HtmlTag> tags;
+
+    private int indentationLevelMarker = 0;
+
 
     /**
      * Create an empty HtmlValidator
      */
-
     public HtmlValidator() {
         tags = new LinkedList<>();
     }
 
     /**
      * Create an HtmlValidator with the content of tags
+     *
      * @param tags the content of new HtmlValidator
      */
-
-    public HtmlValidator(Queue<HtmlTag> tags){
+    public HtmlValidator(Queue<HtmlTag> tags) {
         if (tags == null) {
-            throw new IllegalArgumentException("Initial tags cannot be null");
+            throw new IllegalArgumentException("Initial tags cannot be null.");
         }
-        //create a deep copy of the input queue
+        // Create a deep copy of the input queue
         this.tags = new LinkedList<>(tags);
     }
+
     /**
-     * Add a tag to the end of the HTMLValidator
+     * Add a tag to the end of the HtmlValidator
+     *
      * @param tag the tag to be added
      */
-
-    public void addTag(HtmlTag tag){
-        if(tag == null){
-            throw new IllegalArgumentException("Cannot add a null tag");
+    public void addTag(HtmlTag tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Cannot add a null tag.");
         }
         tags.add(tag);
     }
 
     /**
-     * Get a deep copy of the tags in HtmlValidator
-     * @return A deep copy of the tags in HtmlValidator
+     * Get a deep copy of the tags in the HtmlValidator
+     *
+     * @return A deep copy of the tags in the HtmlValidator
      */
-
-    public Queue<HtmlTag> getTags(){
-        //return a deep copy of the tags in htmlvalidator
+    public Queue<HtmlTag> getTags() {
+        // return a deep of tags
         return new LinkedList<>(tags);
     }
 
     /**
-     * remove all tags matching element
-     * @param element the type of tag to be removed
+     * Remove all tags matching element
+     *
+     * @param element the type of tag to remove
      */
-    public void removeAll(String element){
-        if(element == null){
-            throw new IllegalArgumentException("Cannot remove null tag");
+    public void removeAll(String element) {
+
+        if (element == null) {
+            throw new IllegalArgumentException("Cannot remove a null Element.");
         }
 
-        tags.removeIf(n -> (n.matches));
+        tags.removeIf(tag -> tag.toString().contains(element));
 
-        Queue<HtmlTag> filteredTags = new LinkedList<>(){
-            for(HtmlTag tag:tags){
-                if(!tag.getElement().equalsIgnoreCase(element)){
-                    filteredTags.add(tag);
-                }
-            }
-
-            tags = filteredTags;
-
-            /**
-             * Print Formatted HTML based on the content of the HTMLValidator. The
-             * output is indented according to tag depth.
-             *
-             * Unexpected and Unclosed Tags are printed as error message at 0 Depth.
-             */
-
-            public void validate(){
-                Stack<HtmlTag> openTags = new Stack<>();
-                for(int i = 0; i < tags.size(); i++){
-                    //for(HtmlTag tag:tags) { IS NOT ALLOWED by the spec
-                    //because we can't use a foreach loop.
-                    HtmlTag tag = tags.remove();
-                    tags.add(tag);
-
-                    //TODO: TAG CONDITIONALS
-
-                    if(tag.isSelfClosing()){
-
-                    } else if (tag.isOpenTag()){
-
-                    } else if (!openTags.isEmpty() && tag.matches(openTags.peek())){
-                        //by exhaustion, the tag must be a closed tag.
-                        // closing tags should be at the same depth as opening tags, so we pop
-                        // before printing those values.
-                    } else {
-                        //print the correct message for unexpected tags based on the spec.
-                    }
-
-                    /*
-                    Dealing with unclosed tags.
-                     */
-
-                    while(!openTags.isEmpty()){
-                        HtmlTag tag = ;
-                        System.out.println("ERROR unclosed tag" + ....);
-                    }
-
-                    //Helper Function: make printing at given indentation more convenient.
-                    private static void printWithIndentation(HtmlTag tag, int indentationLevel){
-                        StringBuilder sb = ....
-                        for(){} .... //be sure to append the indentation marker.
-
-                        //TODO: Make sure to print out the sb.toString()
-                    }
-
-                }
+        Queue<HtmlTag> filteredTags = new LinkedList<>();
+        for (HtmlTag tag : tags) {
+            if (!tag.getElement().equalsIgnoreCase(element)) {
+                filteredTags.add(tag);
             }
         }
+        tags = filteredTags;
     }
-}
+
+
+    /**
+     * Print formatted HTML based on the content of the HtmlValidator. The
+     * output is indented according to tag depth.
+     * <p>
+     * Unexpected and unclosed tags are printed as error message at 0 depth.
+     */
+    public void validate() {
+        Stack<HtmlTag> openTags = new Stack<>();
+        for (int i = 0; i < tags.size(); i++) {
+            // for(HtmlTag tag: tags) { is NOT allowed but the spec
+            // because we can't use a foreach loop :l
+            HtmlTag tag = tags.remove();
+            tags.add(tag);
+
+            if (tag.isSelfClosing()) {
+                printWithIndentation(tag, indentationLevelMarker);
+            } else if (tag.isOpenTag()) {
+                openTags.push(tag);
+                printWithIndentation(tag, indentationLevelMarker);
+                indentationLevelMarker++;
+            } else if (!openTags.isEmpty() && tag.matches(openTags.peek())) {
+                // by exhaustion, the tag must be a closing tag
+                // closing tag should beat the same depth as opening, so we pop
+                // before printing
+                openTags.pop();
+                indentationLevelMarker--;
+                printWithIndentation(tag, indentationLevelMarker);
+            } else {
+                System.out.println("ERROR unexpected tag: " + tag.toString());
+            }
+
+        }
+
+        // Deal with unclosed tags
+        while (!openTags.isEmpty()) {
+            HtmlTag tag = openTags.pop();
+            System.out.println("ERROR unclosed tag: " + tag.toString());
+        }
+
+    }
+
+    // Helper function to make printing at given indentation more convenient
+    private void printWithIndentation(HtmlTag tag, int indentationLevel) {
+        StringBuilder sb = new StringBuilder(tag.toString());
+            for (int i = 0; i < indentationLevel; i++) {
+                sb.insert(0, INDENTATION_MARKER);
+            }
+            System.out.println(sb);
+
+            // make sure to print out the sb.toString()
+
+        }
+
+
+    }
